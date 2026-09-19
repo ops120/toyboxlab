@@ -1,0 +1,12 @@
+# Python / PyInstaller
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+_*.txt
+*.log

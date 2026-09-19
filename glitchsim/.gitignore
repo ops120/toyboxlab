@@ -1,0 +1,16 @@
+# ===== 构建产物 / PyInstaller =====
+build/
+dist/
+*.spec
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
+
+# ===== 临时 / 日志 =====
+_*.txt
+*.log
