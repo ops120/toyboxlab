@@ -15,6 +15,7 @@ import ctypes
 from ctypes import wintypes
 import tkinter as tk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
 
 # ----------------------------------------------------------------------
@@ -31,6 +32,13 @@ class SHFILEOPSTRUCTW(ctypes.Structure):
         ("hNameMappings", wintypes.LPVOID),
         ("lpszProgressTitle", wintypes.LPCWSTR),
     ]
+
+
+def resource_path(rel):
+    """兼容 PyInstaller 单文件打包的资源路径。"""
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, rel)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), rel)
 
 
 def move_to_recycle_bin(path):
@@ -133,8 +141,8 @@ class MonsterDeleteApp:
         dialog = rounded_rect_points(dx, dy, dw, dh, 24)
         self.cv.create_polygon(dialog, fill="#3498db", outline="#2980b9", width=2, tags="dialog")
 
-        # 怪兽（居中偏左）
-        self._draw_monster(cx - 100, cy + 30)
+        # 怪兽图（居中偏左）
+        self._draw_monster_image(cx - 100, cy + 20)
 
         # 文件图标（居中偏右）
         self._draw_file_icon(cx + 60, cy - 40, self.filename)
@@ -148,7 +156,7 @@ class MonsterDeleteApp:
         )
 
         # 气泡对话框（上方）
-        self._draw_speech_bubble(cx - 20, dy - 80, "喂，是这个吗？")
+        self._draw_speech_bubble(cx - 20, dy - 80, "oi，是这个吗？")
 
     def _draw_monster(self, cx, cy):
         """用 canvas 形状画一只站立的怪兽，所有部件打 tag 'monster'。"""
@@ -247,6 +255,31 @@ class MonsterDeleteApp:
             cx + 105 * s, cy - 40 * s, cx + 125 * s, cy - 20 * s,
             fill="#B5651D", outline="#8B4513", width=2, tags="monster"
         )
+
+    def _draw_monster_image(self, cx, cy):
+        """加载真实怪兽图（monster.webp）并居中显示。找不到则回退到手绘。"""
+        img_path = resource_path("monster.webp")
+        if not os.path.exists(img_path):
+            self._draw_monster(cx, cy)
+            return
+
+        try:
+            img = Image.open(img_path).convert("RGBA")
+            max_h = 220
+            ratio = max_h / img.height
+            new_w, new_h = int(img.width * ratio), max_h
+            try:
+                resample = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample = Image.ANTIALIAS  # Pillow < 9
+            img = img.resize((new_w, new_h), resample)
+            self.monster_photo = ImageTk.PhotoImage(img)
+            self.cv.create_image(
+                cx, cy, image=self.monster_photo, anchor="center", tags="monster"
+            )
+        except Exception as e:
+            print("加载怪兽图失败:", e)
+            self._draw_monster(cx, cy)
 
     def _draw_file_icon(self, x, y, filename):
         """画一个简易文件图标 + 文件名。"""
