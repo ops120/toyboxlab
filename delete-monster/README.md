@@ -36,8 +36,9 @@ python delete_monster.py "测试文件.txt" --auto-confirm
 
 ## 素材
 
-- `monster.webp`：怪兽图片（「想拆学校」梗图），打包时会一起打进 exe。
-- 如果删掉 `monster.webp`，程序会自动回退到手绘版怪兽。
+- `monster.png`：抠图后的怪兽贴纸（「想拆学校」梗图），透明背景，打包时会一起打进 exe。
+- `monster.webp`：原始带背景的梗图素材。
+- 如果删掉 `monster.png`，程序会自动回退到手绘版怪兽。
 
 ## 安全说明
 

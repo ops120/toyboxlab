@@ -258,7 +258,7 @@ class MonsterDeleteApp:
 
     def _draw_monster_image(self, cx, cy):
         """加载真实怪兽图（monster.webp）并居中显示。找不到则回退到手绘。"""
-        img_path = resource_path("monster.webp")
+        img_path = resource_path("monster.png")
         if not os.path.exists(img_path):
             self._draw_monster(cx, cy)
             return
