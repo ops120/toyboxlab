@@ -324,22 +324,39 @@ class MonsterDeleteApp:
         self.cv.tag_bind(tag, "<Leave>", lambda e: self.cv.itemconfig(bid, fill="#ffffff"))
 
     def _draw_speech_bubble(self, cx, y, text):
-        """画上方气泡文字。"""
-        # 估算文字尺寸：tkinter 没有直接测文字的便捷方法，先占位
-        pad_x, pad_y = 16, 10
-        # 用临时 label 测？简单用固定尺寸
-        text_w = 160
-        text_h = 34
+        """画上方气泡文字，并让它弹出来。"""
+        text_w = 180
+        text_h = 42
         x1, y1 = cx - text_w // 2, y - text_h // 2
         x2, y2 = cx + text_w // 2, y + text_h // 2
-        pts = rounded_rect_points(x1, y1, text_w, text_h, 16)
+        pts = rounded_rect_points(x1, y1, text_w, text_h, 18)
         # 下方小三角指向怪兽头顶
-        pts += [(cx - 10, y2), (cx, y2 + 12), (cx + 10, y2)]
+        pts += [(cx - 10, y2), (cx, y2 + 14), (cx + 10, y2)]
         self.cv.create_polygon(pts, fill="white", outline="#ecf0f1", width=2, tags="bubble")
         self.cv.create_text(
-            cx, y, text=text, font=("Microsoft YaHei", 13),
+            cx, y, text=text, font=("Microsoft YaHei", 16, "bold"),
             fill="#2c3e50", tags="bubble"
         )
+        # 初始压到很小，再弹出来
+        self.cv.scale("bubble", cx, y, 0.05, 0.05)
+        self._pop_in("bubble", cx, y)
+
+    def _pop_in(self, tag, px, py):
+        """从中心弹入，带一点回弹。"""
+        seq = [0.18, 0.42, 0.68, 0.88, 1.02, 1.10, 1.04, 1.0]
+        state = {"last": 0.05, "idx": 0}
+
+        def step():
+            if state["idx"] >= len(seq):
+                return
+            target = seq[state["idx"]]
+            ratio = target / state["last"]
+            self.cv.scale(tag, px, py, ratio, ratio)
+            state["last"] = target
+            state["idx"] += 1
+            self.root.after(45, step)
+
+        self.root.after(120, step)
 
     # ------------------------------------------------------------------
     # 事件
